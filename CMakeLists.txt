@@ -11,6 +11,8 @@ project(attention_cw)
 # Find YARP.  Point the YARP_DIR environment variable at your build.
 find_package(YARP REQUIRED)
 
+include_directories(${/include})
+
 # Search for source code.
 file(GLOB folder_source src/*.cpp)
 file(GLOB folder_header include/*.h)

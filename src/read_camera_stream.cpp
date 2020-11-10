@@ -1,29 +1,37 @@
-#include <yarp/os/Bottle.h>
 #include <yarp/os/BufferedPort.h>
 #include <yarp/os/LogStream.h>
 #include <yarp/os/Network.h>
-#include <yarp/os/ConnectionReader.h>
 #include <yarp/sig/Image.h>
+
+#include <read_camera_stream.h>
 
 using namespace yarp::os;
 using namespace yarp::sig;
 
-int main()
+ImageOf<PixelRgb> *read_camera_stream()
 {
-
-    Network network;
+    Network network; //inits yarp ports
     BufferedPort<ImageOf<PixelRgb>> imagePort;
     imagePort.open("/cameraListener"); //connect to camera using
                                        //yarp connect /icubSim/cam/left /cameraListener
-    while (1)
+
+    ImageOf<PixelRgb> *image = read_port_until_image_received(imagePort);
+    imagePort.close();
+    return image;
+}
+
+static ImageOf<PixelRgb> *read_port_until_image_received(BufferedPort<ImageOf<PixelRgb>> &imagePort)
+{
+    bool imageReceived = false;
+    ImageOf<PixelRgb> *image;
+    while (!imageReceived)
     {
-        ImageOf<PixelRgb> *image = imagePort.read();
-        if (image != NULL)
+        image = imagePort.read();
+        if (image != nullptr)
         {
-            yInfo() << "we got an image of size " << image->width() << "X" << image->height();
-            return 0;
+            yInfo() << "Image of size " << image->width() << "x" << image->height() << "received.";
+            imageReceived = true;
         }
     }
-    imagePort.close();
-    return 0;
+    return image;
 }
