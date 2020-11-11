@@ -11,6 +11,8 @@ project(attention_cw)
 # Find YARP.  Point the YARP_DIR environment variable at your build.
 find_package(YARP REQUIRED)
 
+find_package(OpenCV REQUIRED)
+include_directories(${OpenCV_INCLUDE_DIRS})
 include_directories(${/include})
 
 # Search for source code.
@@ -35,7 +37,7 @@ endforeach(header_file ${folder_header})
 # Set up our main executable.
 if(folder_source)
   add_executable(${PROJECT_NAME} ${folder_source} ${folder_header})
-  target_link_libraries(${PROJECT_NAME} ${YARP_LIBRARIES})
+  target_link_libraries(${PROJECT_NAME} ${YARP_LIBRARIES} ${OpenCV_LIBS})
 else()
   message(FATAL_ERROR "No source code files found. Please add something")
 endif()
