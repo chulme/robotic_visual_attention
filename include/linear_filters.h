@@ -1,6 +1,6 @@
 #pragma once
 
-#include <opencv2/opencv.hpp>
+#include <opencv2/core/core.hpp>
 
 void apply_and_display_filtered_images();
 
