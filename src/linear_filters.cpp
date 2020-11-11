@@ -30,25 +30,6 @@ static void convert_image_to_cv_image()
 {
 }
 
-//Used for debugging until converting image from yarp to OpenCV resolved.
-cv::Mat read_image(const std::string &image_name)
-{
-    std::string path = get_project_path();
-    path += "data/" + image_name;
-    yInfo()
-        << "Reading image from"
-        << path;
-
-    std::string image_path = path;
-    cv::Mat image = cv::imread(image_path, cv::IMREAD_COLOR);
-    if (image.empty())
-    {
-        yInfo() << "Could not read image.";
-    }
-
-    return image;
-}
-
 static cv::Mat colour_threshold(const cv::Mat &image)
 {
     cv::Mat mask;
