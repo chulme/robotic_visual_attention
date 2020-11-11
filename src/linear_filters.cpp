@@ -14,12 +14,13 @@ using namespace yarp::sig;
 
 void apply_and_display_filtered_images()
 {
-    cv::Mat image = read_image();
+    cv::Mat image = read_image("house.jpg");
     cv::Mat clr_threshold = colour_threshold(image);
     cv::Mat edge_threshold = canny_threshold(image);
-    cv::imshow("Original", image);
+
     cv::imshow("Colour Threshold", clr_threshold);
     cv::imshow("Canny Edge Detection", edge_threshold);
+    cv::imshow("Original", image);
 
     cv::waitKey(0);
     cv::destroyAllWindows();
@@ -30,10 +31,10 @@ static void convert_image_to_cv_image()
 }
 
 //Used for debugging until converting image from yarp to OpenCV resolved.
-static cv::Mat read_image()
+cv::Mat read_image(const std::string &image_name)
 {
     std::string path = get_project_path();
-    path += "data/house.jpg";
+    path += "data/" + image_name;
     yInfo()
         << "Reading image from"
         << path;
