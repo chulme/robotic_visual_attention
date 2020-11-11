@@ -14,9 +14,11 @@ void apply_and_display_filtered_images()
 {
     cv::Mat image = read_image();
     cv::Mat clr_threshold = colour_threshold(image);
-
+    cv::Mat edge_threshold = canny_threshold(image);
     cv::imshow("Original", image);
     cv::imshow("Colour Threshold", clr_threshold);
+    cv::imshow("Canny Edge Detection", edge_threshold);
+
     cv::waitKey(0);
     cv::destroyAllWindows();
 }
@@ -30,7 +32,7 @@ static cv::Mat read_image()
 {
     yInfo() << "Reading image";
 
-    std::string image_path = "/home/user/Desktop/bulgaria.jpg";
+    std::string image_path = "/home/user/Desktop/house.jpg";
     cv::Mat image = cv::imread(image_path, cv::IMREAD_COLOR);
     if (image.empty())
     {
@@ -50,4 +52,19 @@ static cv::Mat colour_threshold(cv::Mat image)
     cv::cvtColor(mask, mask_rgb, cv::COLOR_GRAY2RGB);
 
     return (image & mask_rgb);
+}
+
+static cv::Mat canny_threshold(cv::Mat image)
+{
+    cv::Mat gray;
+    cv::cvtColor(image, gray, cv::COLOR_RGB2GRAY);
+
+    cv::Mat blurred;
+    cv::blur(gray, blurred, cv::Size(3, 3));
+    cv::Mat edges;
+    cv::Canny(blurred, edges, 100, 300, 3);
+    cv::Mat dst;
+    dst.setTo(cv::Scalar::all(0));
+    image.copyTo(dst, edges);
+    return dst;
 }
