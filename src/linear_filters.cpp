@@ -6,6 +6,8 @@
 #include <yarp/os/LogStream.h>
 
 #include <linear_filters.h>
+#include <utils.h>
+#include <string>
 
 using namespace yarp::os;
 using namespace yarp::sig;
@@ -30,9 +32,13 @@ static void convert_image_to_cv_image()
 //Used for debugging until converting image from yarp to OpenCV resolved.
 static cv::Mat read_image()
 {
-    yInfo() << "Reading image";
+    std::string path = get_project_path();
+    path += "data/house.jpg";
+    yInfo()
+        << "Reading image from"
+        << path;
 
-    std::string image_path = "/home/user/Desktop/house.jpg";
+    std::string image_path = path;
     cv::Mat image = cv::imread(image_path, cv::IMREAD_COLOR);
     if (image.empty())
     {
