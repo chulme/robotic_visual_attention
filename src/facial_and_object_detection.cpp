@@ -17,10 +17,8 @@ void facial_detection(const cv::Mat &image)
     loadCascade(faceCascade);
     std::vector<cv::Rect> faces = detectFaces(image, faceCascade);
     cv::Mat newImage = drawRectangeOnFaces(faces, image);
-    
+
     cv::imshow("Facial Recognition", newImage);
-    cv::waitKey(0);
-    cv::destroyAllWindows();
 }
 
 static void loadCascade(cv::CascadeClassifier &cascade)

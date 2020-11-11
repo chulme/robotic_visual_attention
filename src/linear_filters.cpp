@@ -2,6 +2,7 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/core/core.hpp>
 
+#include <yarp/cv/Cv.h>
 #include <yarp/sig/Image.h>
 #include <yarp/os/LogStream.h>
 
@@ -12,29 +13,27 @@
 using namespace yarp::os;
 using namespace yarp::sig;
 
-void apply_and_display_filtered_images()
+void apply_and_display_filtered_images(const cv::Mat &image)
 {
-    cv::Mat image = read_image("house.jpg");
+    // cv::Mat image = read_image("house.jpg");
     cv::Mat clr_threshold = colour_threshold(image);
     cv::Mat edge_threshold = canny_threshold(image);
 
     cv::imshow("Colour Threshold", clr_threshold);
     cv::imshow("Canny Edge Detection", edge_threshold);
     cv::imshow("Original", image);
-
-    cv::waitKey(0);
-    cv::destroyAllWindows();
 }
 
-static void convert_image_to_cv_image()
+cv::Mat convert_yarp_to_opencv_image(ImageOf<PixelRgb> &yarpImage)
 {
+    return yarp::cv::toCvMat(yarpImage);
 }
 
 static cv::Mat colour_threshold(const cv::Mat &image)
 {
     cv::Mat mask;
     //Threshold is BGR, not RGB
-    cv::inRange(image, cv::Scalar(0, 0, 100), cv::Scalar(80, 80, 225), mask);
+    cv::inRange(image, cv::Scalar(100, 0, 0), cv::Scalar(255, 80, 80), mask);
 
     cv::Mat mask_rgb;
     cv::cvtColor(mask, mask_rgb, cv::COLOR_GRAY2RGB);

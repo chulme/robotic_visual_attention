@@ -10,19 +10,18 @@
 using namespace yarp::os;
 using namespace yarp::sig;
 
-ImageOf<PixelRgb> *read_camera_stream()
+ImageOf<PixelRgb> read_camera_stream()
 {
     Network network; //inits yarp ports
     BufferedPort<ImageOf<PixelRgb>> imagePort;
     imagePort.open("/cameraListener"); //connect to camera using
                                        //yarp connect /icubSim/cam/left /cameraListener
-
-    ImageOf<PixelRgb> *image = read_port_until_image_received(imagePort);
+    ImageOf<PixelRgb> image = read_port_until_image_received(imagePort);
     imagePort.close();
     return image;
 }
 
-static ImageOf<PixelRgb> *read_port_until_image_received(BufferedPort<ImageOf<PixelRgb>> &imagePort)
+static ImageOf<PixelRgb> read_port_until_image_received(BufferedPort<ImageOf<PixelRgb>> &imagePort)
 {
     bool imageReceived = false;
     ImageOf<PixelRgb> *image;
@@ -35,5 +34,5 @@ static ImageOf<PixelRgb> *read_port_until_image_received(BufferedPort<ImageOf<Pi
             imageReceived = true;
         }
     }
-    return image;
+    return *image;
 }
