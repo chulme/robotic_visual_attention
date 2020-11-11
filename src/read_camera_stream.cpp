@@ -3,6 +3,8 @@
 #include <yarp/os/Network.h>
 #include <yarp/sig/Image.h>
 
+#include <opencv2/opencv.hpp>
+
 #include <read_camera_stream.h>
 
 using namespace yarp::os;
