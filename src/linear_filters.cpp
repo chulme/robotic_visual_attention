@@ -42,7 +42,7 @@ static cv::Mat read_image()
     return image;
 }
 
-static cv::Mat colour_threshold(cv::Mat image)
+static cv::Mat colour_threshold(const cv::Mat &image)
 {
     cv::Mat mask;
     //Threshold is BGR, not RGB
@@ -54,7 +54,7 @@ static cv::Mat colour_threshold(cv::Mat image)
     return (image & mask_rgb);
 }
 
-static cv::Mat canny_threshold(cv::Mat image)
+static cv::Mat canny_threshold(const cv::Mat &image)
 {
     cv::Mat gray;
     cv::cvtColor(image, gray, cv::COLOR_RGB2GRAY);
