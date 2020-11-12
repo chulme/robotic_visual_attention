@@ -30,7 +30,6 @@ ImageOf<PixelRgb> read_port_until_image_received(BufferedPort<ImageOf<PixelRgb>>
         image = imagePort.read();
         if (image != nullptr)
         {
-            yInfo() << "Image of size " << image->width() << "x" << image->height() << "received.";
             imageReceived = true;
         }
     }

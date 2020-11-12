@@ -13,19 +13,25 @@ using namespace yarp::os;
 
 int main()
 {
-
     Network network; //inits yarp ports
     BufferedPort<ImageOf<PixelRgb>> imagePort;
     imagePort.open("/cameraListener"); //connect to camera using
                                        //yarp connect /icubSim/cam/left /cameraListener
-    while (1)
+    yInfo() << "Press any key on the windows to close the program cleanly.";
+    bool buttonPressed = false;
+    while (!buttonPressed)
     {
         ImageOf<PixelRgb> yarpImage = read_port_until_image_received(imagePort);
         cv::Mat opencvImage = convert_yarp_to_opencv_image(yarpImage);
         apply_and_display_filtered_images(opencvImage);
         facial_detection(opencvImage);
-        cv::waitKey(1);
+
+        if (cv::waitKey(1) >= 0)
+        {
+            buttonPressed = true;
+        }
     }
+    imagePort.close();
     cv::destroyAllWindows();
 
     return 0;
