@@ -21,7 +21,7 @@ ImageOf<PixelRgb> read_camera_stream()
     return image;
 }
 
-static ImageOf<PixelRgb> read_port_until_image_received(BufferedPort<ImageOf<PixelRgb>> &imagePort)
+ImageOf<PixelRgb> read_port_until_image_received(BufferedPort<ImageOf<PixelRgb>> &imagePort)
 {
     bool imageReceived = false;
     ImageOf<PixelRgb> *image;
