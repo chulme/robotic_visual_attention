@@ -6,18 +6,16 @@
 # Replace "yarpy" with whatever your executable should be called.
 
 cmake_minimum_required(VERSION 3.5)
-project(attention_cw)
+project(ocvtest)
 
 # Find YARP.  Point the YARP_DIR environment variable at your build.
 find_package(YARP REQUIRED)
-
-find_package(OpenCV REQUIRED)
-include_directories(${OpenCV_INCLUDE_DIRS})
-include_directories(${/include})
+FIND_PACKAGE(OpenCV REQUIRED)
+FIND_PACKAGE(aruco REQUIRED)
 
 # Search for source code.
-file(GLOB folder_source src/*.cpp)
-file(GLOB folder_header include/*.h)
+file(GLOB folder_source *.cpp *.cc *.c)
+file(GLOB folder_header *.h)
 
 # Search for IDL files.
 file(GLOB idl_files *.thrift *.msg *.srv)
@@ -28,16 +26,20 @@ foreach(idl ${idl_files})
   include_directories(${IDL_INCLUDE})
 endforeach()
 
+message("Include dirs " ${aruco_INCLUDE_DIRS})
+
 # Automatically add include directories if needed.
 foreach(header_file ${folder_header})
   get_filename_component(p ${header_file} PATH)
   include_directories(${p})
 endforeach(header_file ${folder_header})
 
+include_directories(${OpenCV_INCLUDE_DIRS} ${aruco_INCLUDE_DIRS})
+
 # Set up our main executable.
 if(folder_source)
   add_executable(${PROJECT_NAME} ${folder_source} ${folder_header})
-  target_link_libraries(${PROJECT_NAME} ${YARP_LIBRARIES} ${OpenCV_LIBS})
+  target_link_libraries(${PROJECT_NAME} ${YARP_LIBRARIES} ${OpenCV_LIBS} ${aruco_LIBS})
 else()
   message(FATAL_ERROR "No source code files found. Please add something")
 endif()
