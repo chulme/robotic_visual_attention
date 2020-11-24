@@ -8,6 +8,10 @@
 cmake_minimum_required(VERSION 3.5)
 project(ocvtest)
 
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 # Find YARP.  Point the YARP_DIR environment variable at your build.
 find_package(YARP REQUIRED)
 FIND_PACKAGE(OpenCV REQUIRED)

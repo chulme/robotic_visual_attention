@@ -1,6 +1,12 @@
 #include <read_camera_stream.h>
 #include <opencv2/highgui/highgui.hpp>
+
 #include <aruco/aruco.h>
+#include <aruco/cvdrawingutils.h>
+#include <aruco/markerdetector.h>
+#include <opencv2/flann/flann.hpp>
+#include <opencv2/core/core.hpp>
+
 #include <yarp/sig/Image.h>
 #include <linear_filters.h>
 #include <facial_and_object_detection.h>
@@ -14,29 +20,35 @@ using namespace yarp::sig;
 using namespace yarp::os;
 using namespace std;
 using namespace cv;
+using namespace aruco;
 
 
-void arucos (){
 
-	//print(aruco::Dictionary::DICT_TYPES);
-/*
-	cv::Mat markerImage;
-	aruco::Dictionary dictionary = aruco::getPredefinedDictionary("ARUCO_MIP_36h12"​);
+void aruco_detection(const cv::Mat &image){
 
-	// 
-	for(int i  =0; i <50; i++){
-		aruco::drawMarker(dictionary, i, 500, markerImage, 1);
-		ostringstream convert;
-		string image = "4x4Marker_";
-		convert << image << i << ".jpeg";
-		imwrite(convert.str(),markerImage);
-	}
-	*/
+
+	aruco::MarkerDetector MDetector;
+	//read in
+	cv::Mat InImage = image;
+	MDetector.setDictionary("ARUCO_MIP_36h12");
+	
+	for(auto m:MDetector.detect(InImage)){
+		std::cout<<m<<std::endl;
+		m.draw(InImage);	
+	} 
+	cv::imshow("hi",InImage);
+
+
+
+
+
+
+
 }
 
 int main()
 {
-    arucos();
+    
     Network network; //inits yarp ports
     BufferedPort<ImageOf<PixelRgb>> imagePort;
     imagePort.open("/cameraListener"); //connect to camera using
@@ -45,11 +57,13 @@ int main()
     bool buttonPressed = false;
     while (!buttonPressed)
     {
-        //ImageOf<PixelRgb> yarpImage = read_port_until_image_received(imagePort);
-	cv::Mat opencvImage = read_image("marker_66.jpg");        
-	//cv::Mat opencvImage = convert_yarp_to_opencv_image(yarpImage);
+        ImageOf<PixelRgb> yarpImage = read_port_until_image_received(imagePort);
+	//cv::Mat opencvImage = read_image("marker.png");        
+	cv::Mat opencvImage = convert_yarp_to_opencv_image(yarpImage);
         apply_and_display_filtered_images(opencvImage);
+	//
         facial_detection(opencvImage);
+	aruco_detection(opencvImage);
 
         if (cv::waitKey(1) >= 0)
         {
