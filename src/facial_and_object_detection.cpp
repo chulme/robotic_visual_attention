@@ -4,21 +4,23 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/objdetect/objdetect.hpp>
 
+#include <yarp/sig/Image.h>
+#include <yarp/cv/Cv.h>
 #include <vector>
 #include <string>
 #include <utils.h>
 #include <facial_and_object_detection.h>
 const double scale = 1.0;
 
-void facial_detection(const cv::Mat &image)
+std::vector<cv::Point> facial_detection(const cv::Mat &image, yarp::sig::ImageOf<yarp::sig::PixelRgb> &out)
 {
 
     cv::CascadeClassifier faceCascade;
     loadCascade(faceCascade);
     std::vector<cv::Rect> faces = detectFaces(image, faceCascade);
-    cv::Mat newImage = drawRectangeOnFaces(faces, image);
-
-    cv::imshow("Facial Recognition", newImage);
+    cv::Mat imageWithBoundingBoxes = drawRectangeOnFaces(faces, image);
+    out = yarp::cv::fromCvMat<yarp::sig::PixelRgb>(imageWithBoundingBoxes);
+    return getFaceCoords(faces);
 }
 
 static void loadCascade(cv::CascadeClassifier &cascade)
@@ -50,4 +52,14 @@ static cv::Mat drawRectangeOnFaces(const std::vector<cv::Rect> faces, const cv::
                   colour);
     }
     return image;
+}
+
+static std::vector<cv::Point> getFaceCoords(const std::vector<cv::Rect> faces)
+{
+    std::vector<cv::Point> faceCoords;
+    for (cv::Rect face : faces)
+    {
+        faceCoords.push_back({face.x, face.y});
+    }
+    return faceCoords;
 }
