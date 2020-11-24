@@ -54,12 +54,23 @@ static cv::Mat drawRectangeOnFaces(const std::vector<cv::Rect> faces, const cv::
     return image;
 }
 
+// static std::vector<cv::Point> getFaceCoords(const std::vector<cv::Rect> faces)
+// {
+//     std::vector<cv::Point> faceCoords;
+//     for (cv::Rect face : faces)
+//     {
+//         faceCoords.push_back({face.x, face.y});
+//     }
+//     return faceCoords;
+// }
+
 static std::vector<cv::Point> getFaceCoords(const std::vector<cv::Rect> faces)
 {
     std::vector<cv::Point> faceCoords;
     for (cv::Rect face : faces)
     {
-        faceCoords.push_back({face.x, face.y});
+        faceCoords.push_back(cv::Point(((2 * face.x + face.width - 1) / 2 * scale),
+                                       ((2 * face.y + face.height - 1) / 2 * scale)));
     }
     return faceCoords;
 }
