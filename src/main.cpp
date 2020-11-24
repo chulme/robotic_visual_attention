@@ -65,7 +65,6 @@ int main()
         // Read webcam
         ImageOf<PixelRgb> yarpImage = read_port_until_image_received(imagePort);
         cv::Mat opencvImage = convert_yarp_to_opencv_image(yarpImage);
-        yInfo() << "hi";
 
         //Prepare ports
         ImageOf<PixelRgb> &clr = colourPort.prepare();
@@ -76,10 +75,8 @@ int main()
         cv::Mat colour = colour_threshold(opencvImage, clr);
         cv::Mat canny = canny_threshold(opencvImage, edge);
         std::vector<cv::Point> faceCoords = facial_detection(opencvImage, faces);
-        for (auto faceCoord : faceCoords)
-        {
-            yInfo() << faceCoord.x << ", " << faceCoord.y;
-        }
+
+        //Move head
         toward_head(faceCoords, jnts, setpoints, vel);
         //Write to ports, so images can be viewed by yarpview
         colourPort.write();
