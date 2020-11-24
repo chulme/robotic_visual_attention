@@ -25,7 +25,8 @@ void toward_head(const std::vector<cv::Point> focus, int jnts, Vector setpoints,
     {
         double x = target.x;
         double y = target.y;
-
+        x -= 320 / 2;
+        y -= 240 / 2;
         double vx = x * 0.1;
         double vy = -y * 0.1;
 
