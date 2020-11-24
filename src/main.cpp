@@ -33,9 +33,10 @@ int main()
         ImageOf<PixelRgb> &clr = colourPort.prepare();
         ImageOf<PixelRgb> &edge = edgePort.prepare();
 
-        apply_and_display_filtered_images(opencvImage, clr, edge);
+        cv::Mat colour = colour_threshold(opencvImage, clr);
+        cv::Mat canny = canny_threshold(opencvImage, edge);
 
-        //colourPort.write();
+        colourPort.write();
         edgePort.write();
 
         // facial_detection(opencvImage);

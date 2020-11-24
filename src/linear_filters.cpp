@@ -18,18 +18,12 @@
 using namespace yarp::os;
 using namespace yarp::sig;
 
-void apply_and_display_filtered_images(const cv::Mat &image, ImageOf<PixelRgb> &colour_threshold_out, ImageOf<PixelRgb> &canny_threshold_out)
-{
-    //colour_threshold_out = colour_threshold(image);
-    canny_threshold_out = canny_threshold(image);
-}
-
 cv::Mat convert_yarp_to_opencv_image(ImageOf<PixelRgb> &yarpImage)
 {
     return yarp::cv::toCvMat(yarpImage);
 }
 
-static ImageOf<PixelRgb> colour_threshold(const cv::Mat &image)
+cv::Mat colour_threshold(const cv::Mat &image, ImageOf<PixelRgb> &out)
 {
     cv::Mat mask;
     //Threshold is BGR, not RGB
@@ -38,11 +32,12 @@ static ImageOf<PixelRgb> colour_threshold(const cv::Mat &image)
     cv::Mat mask_rgb;
     cv::cvtColor(mask, mask_rgb, cv::COLOR_GRAY2RGB);
     cv::Mat colour_threshold = (image & mask_rgb);
+    out = yarp::cv::fromCvMat<PixelRgb>(colour_threshold);
 
-    return yarp::cv::fromCvMat<PixelRgb>(colour_threshold);
+    return colour_threshold;
 }
 
-static ImageOf<PixelRgb> canny_threshold(const cv::Mat &image)
+cv::Mat canny_threshold(const cv::Mat &image, ImageOf<PixelRgb> &out)
 {
     cv::Mat gray;
     cv::cvtColor(image, gray, cv::COLOR_RGB2GRAY);
@@ -54,5 +49,6 @@ static ImageOf<PixelRgb> canny_threshold(const cv::Mat &image)
     cv::Mat dst;
     dst.setTo(cv::Scalar::all(0));
     image.copyTo(dst, edges);
-    return yarp::cv::fromCvMat<PixelRgb>(dst);
+    out = yarp::cv::fromCvMat<PixelRgb>(dst);
+    return dst;
 }
