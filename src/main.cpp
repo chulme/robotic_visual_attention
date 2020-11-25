@@ -24,8 +24,8 @@ int main()
         ImageOf<PixelRgb> yarpImage = read_port_until_image_received(imagePort);
         cv::Mat opencvImage = convert_yarp_to_opencv_image(yarpImage);
         apply_and_display_filtered_images(opencvImage);
+        circle_detection(opencvImage);
         facial_detection(opencvImage);
-
         if (cv::waitKey(1) >= 0)
         {
             buttonPressed = true;
