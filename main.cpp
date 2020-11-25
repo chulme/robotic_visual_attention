@@ -10,6 +10,7 @@
 #include <yarp/sig/Image.h>
 #include <linear_filters.h>
 #include <facial_and_object_detection.h>
+#include <aruco_detection.h>
 #include <yarp/os/LogStream.h>
 #include <yarp/os/Network.h>
 #include <yarp/os/BufferedPort.h>
@@ -23,48 +24,31 @@ using namespace cv;
 using namespace aruco;
 
 
-
-void aruco_detection(const cv::Mat &image){
-
-
-	aruco::MarkerDetector MDetector;
-	//read in
-	cv::Mat InImage = image;
-	MDetector.setDictionary("ARUCO_MIP_36h12");
-	
-	for(auto m:MDetector.detect(InImage)){
-		std::cout<<m<<std::endl;
-		m.draw(InImage);	
-	} 
-	cv::imshow("hi",InImage);
-
-
-
-
-
-
-
-}
-
 int main()
 {
     
     Network network; //inits yarp ports
-    BufferedPort<ImageOf<PixelRgb>> imagePort;
+    BufferedPort<ImageOf<PixelRgb>> imagePort,arucoPort;
     imagePort.open("/cameraListener"); //connect to camera using
-                                       //yarp connect /icubSim/cam/left /cameraListener
+                                       //yarp connect /icubSim/cam/left /cameraListener 
+    arucoPort.open("/marker");
     yInfo() << "Press any key on the windows to close the program cleanly.";
     bool buttonPressed = false;
+
+	
+   
+	
     while (!buttonPressed)
     {
+	ImageOf<PixelRgb> &markerImg = arucoPort.prepare();
+
         ImageOf<PixelRgb> yarpImage = read_port_until_image_received(imagePort);
 	//cv::Mat opencvImage = read_image("marker.png");        
 	cv::Mat opencvImage = convert_yarp_to_opencv_image(yarpImage);
-        apply_and_display_filtered_images(opencvImage);
-	//
-        facial_detection(opencvImage);
-	aruco_detection(opencvImage);
 
+	cv::Mat arucoImg = arucoDetection(opencvImage, markerImg);
+
+	arucoPort.write();
         if (cv::waitKey(1) >= 0)
         {
             buttonPressed = true;

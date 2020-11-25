@@ -1,0 +1,1 @@
+/usr/bin/c++    -rdynamic CMakeFiles/yarpy.dir/example.cpp.o  -o yarpy -Wl,-rpath,/opt/icub/lib64 /opt/icub/lib64/libYARP_dev.so.2.3.70 /opt/icub/lib64/libYARP_name.so.2.3.70 /opt/icub/lib64/libYARP_init.so.2.3.70 /opt/icub/lib64/libYARP_math.so.2.3.70 /opt/icub/lib64/libYARP_sig.so.2.3.70 /opt/icub/lib64/libYARP_OS.so.2.3.70 
