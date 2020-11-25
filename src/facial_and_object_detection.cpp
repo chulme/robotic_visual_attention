@@ -3,6 +3,9 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/core/core.hpp>
 #include <opencv2/objdetect/objdetect.hpp>
+
+#include <yarp/sig/Image.h>
+#include <yarp/cv/Cv.h>
 #include <vector>
 #include <string>
 #include <facial_and_object_detection.h>
@@ -15,15 +18,16 @@ using namespace std;
 const double scale = 1.0;
 #define HOUGH_GRADIENT 3
 #define LINE_AA 16
-void facial_detection(const cv::Mat &img)
+
+std::vector<cv::Point> facial_detection(const cv::Mat &img, yarp::sig::ImageOf<yarp::sig::PixelRgb> &out)
 {
     cv::Mat image = img;
     cv::CascadeClassifier faceCascade;
     loadCascade(faceCascade);
     std::vector<cv::Rect> faces = detectFaces(image, faceCascade);
-    cv::Mat newImage = drawRectangeOnFaces(faces, image);
-
-    cv::imshow("Facial Recognition", newImage);
+    cv::Mat imageWithBoundingBoxes = drawRectangeOnFaces(faces, image);
+    out = yarp::cv::fromCvMat<yarp::sig::PixelRgb>(imageWithBoundingBoxes);
+    return getFaceCoords(faces);
 }
 
 static void loadCascade(cv::CascadeClassifier &cascade)
@@ -83,4 +87,24 @@ cv::Mat circle_detection(const cv::Mat &img)
     cv::imshow("Circles", src);
 
     return src;
+}
+// static std::vector<cv::Point> getFaceCoords(const std::vector<cv::Rect> faces)
+// {
+//     std::vector<cv::Point> faceCoords;
+//     for (cv::Rect face : faces)
+//     {
+//         faceCoords.push_back({face.x, face.y});
+//     }
+//     return faceCoords;
+// }
+
+static std::vector<cv::Point> getFaceCoords(const std::vector<cv::Rect> faces)
+{
+    std::vector<cv::Point> faceCoords;
+    for (cv::Rect face : faces)
+    {
+        faceCoords.push_back(cv::Point(((2 * face.x + face.width - 1) / 2 * scale),
+                                       ((2 * face.y + face.height - 1) / 2 * scale)));
+    }
+    return faceCoords;
 }

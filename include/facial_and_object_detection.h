@@ -3,8 +3,9 @@
 #include <opencv2/objdetect/objdetect.hpp>
 #include <vector>
 
-void facial_detection(const cv::Mat &image);
+std::vector<cv::Point> facial_detection(const cv::Mat &image, yarp::sig::ImageOf<yarp::sig::PixelRgb> &out);
 static void loadCascade(cv::CascadeClassifier &cascade);
 static std::vector<cv::Rect> detectFaces(const cv::Mat &image, cv::CascadeClassifier &faceCascade);
 static cv::Mat drawRectangeOnFaces(const std::vector<cv::Rect> faces, const cv::Mat &image);
 cv::Mat circle_detection(const cv::Mat &src);
+static std::vector<cv::Point> getFaceCoords(const std::vector<cv::Rect> faces);
