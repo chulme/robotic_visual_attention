@@ -16,12 +16,12 @@ using namespace cv;
 using namespace std;
 
 const double scale = 1.0;
-#define HOUGH_GRADIENT 3
-#define LINE_AA 16
+const int HOUGH_GRADIENT = 3;
+const int LINE_AA = 16;
 
-std::vector<cv::Point> facial_detection(const cv::Mat &img, yarp::sig::ImageOf<yarp::sig::PixelRgb> &out)
+std::vector<cv::Point> facial_detection(const cv::Mat &in, yarp::sig::ImageOf<yarp::sig::PixelRgb> &out)
 {
-    cv::Mat image = img;
+    cv::Mat image = in.clone(); //OpenCV can override const, so clone to be safe and ensure no reference between old and new.
     cv::CascadeClassifier faceCascade;
     loadCascade(faceCascade);
     std::vector<cv::Rect> faces = detectFaces(image, faceCascade);
@@ -58,15 +58,15 @@ static cv::Mat drawRectangeOnFaces(const std::vector<cv::Rect> faces, const cv::
                   cv::Point(cvRound((area.x + area.width - 1) * scale), cvRound((area.y + area.height - 1) * scale)),
                   colour);
     }
-    return image;
+    return newImage;
 }
 
 cv::Mat circle_detection(const cv::Mat &img)
 {
 
-    Mat src = img;
+    cv::Mat src = img.clone(); //OpenCV can override const, so clone to be safe and ensure no reference between old and new.
     Mat gray;
-    cvtColor(src, gray, COLOR_BGR2GRAY);
+    cvtColor(src, gray, COLOR_RGB2GRAY);
     medianBlur(gray, gray, 5);
     vector<Vec3f> circles;
     HoughCircles(gray, circles, HOUGH_GRADIENT, 1,
@@ -84,8 +84,8 @@ cv::Mat circle_detection(const cv::Mat &img)
         int radius = c[2];
         circle(src, center, radius, Scalar(255, 0, 255), 3, LINE_AA);
     }
-    cv::imshow("Circles", src);
 
+    out = yarp::cv::fromCvMat<yarp::sig::PixelRgb>(src);
     return src;
 }
 // static std::vector<cv::Point> getFaceCoords(const std::vector<cv::Rect> faces)
