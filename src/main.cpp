@@ -11,54 +11,35 @@
 #include <yarp/os/BufferedPort.h>
 #include <unistd.h>
 
-#include <yarp/dev/all.h>
+#include <yarp/dev/PolyDriver.h>
+#include <yarp/dev/ImplementPositionControl.h>
+#include <yarp/dev/ImplementVelocityControl.h>
+#include <yarp/dev/ImplementControlMode.h>
+#include <yarp/dev/ImplementEncoders.h>
 
 using namespace yarp::sig;
 using namespace yarp::os;
 using namespace yarp::dev;
 
+Network network;
+
+BufferedPort<ImageOf<PixelRgb>> imagePort, colourPort, edgePort, facePort;
+Property options;
+PolyDriver robotHead;
+IPositionControl *pos;
+IVelocityControl *vel;
+IEncoders *enc;
+IControlMode *con;
+int jnts = 0;
+Vector setpoints;
+
+void init_head_joints();
+void init_ports();
+
 int main()
 {
-    Network yarp; // set up yarp
-
-    Property options;
-    options.put("device", "remote_controlboard");
-    options.put("local", "/tutorial/motor/client");
-    options.put("remote", "/icubSim/head");
-    PolyDriver robotHead(options);
-    if (!robotHead.isValid())
-    {
-        printf("Cannot connect to robot head\n");
-        return 1;
-    }
-    IPositionControl *pos;
-    IVelocityControl *vel;
-    IEncoders *enc;
-    IControlMode *con;
-    robotHead.view(pos);
-    robotHead.view(vel);
-    robotHead.view(enc);
-    robotHead.view(con);
-    if (pos == NULL || vel == NULL || enc == NULL || con == NULL)
-    {
-        printf("Cannot get interface to robot head\n");
-        robotHead.close();
-        return 1;
-    }
-
-    int jnts = 0;
-    pos->getAxes(&jnts);
-    Vector setpoints;
-    setpoints.resize(jnts);
-    for (int i = 0; i <= jnts; i++)
-        con->setControlMode(i, VOCAB_CM_VELOCITY);
-    vel->velocityMove(setpoints.data());
-
-    BufferedPort<ImageOf<PixelRgb>> imagePort, colourPort, edgePort, facePort;
-    imagePort.open("/cameraListener"); //yarp connect /icubSim/cam/left /cameraListener
-    colourPort.open("/filters/colour");
-    edgePort.open("/filters/edge");
-    facePort.open("/faces");
+    init_head_joints();
+    init_ports();
 
     while (1)
     {
@@ -78,6 +59,7 @@ int main()
 
         //Move head
         toward_head(faceCoords, jnts, setpoints, vel);
+
         //Write to ports, so images can be viewed by yarpview
         colourPort.write();
         edgePort.write();
@@ -85,4 +67,41 @@ int main()
     }
 
     return 0;
+}
+
+void init_head_joints()
+{
+    options.put("device", "remote_controlboard");
+    options.put("local", "/tutorial/motor/client");
+    options.put("remote", "/icubSim/head");
+    robotHead.open(options);
+    if (!robotHead.isValid())
+    {
+        printf("Cannot connect to robot head\n");
+        return;
+    }
+    robotHead.view(pos);
+    robotHead.view(vel);
+    robotHead.view(enc);
+    robotHead.view(con);
+    if (pos == NULL || vel == NULL || enc == NULL || con == NULL)
+    {
+        printf("Cannot get interface to robot head\n");
+        robotHead.close();
+        return;
+    }
+
+    pos->getAxes(&jnts);
+    setpoints.resize(jnts);
+    for (int i = 0; i <= jnts; i++)
+        con->setControlMode(i, VOCAB_CM_VELOCITY);
+    vel->velocityMove(setpoints.data());
+}
+
+void init_ports()
+{
+    imagePort.open("/cameraListener"); //yarp connect /icubSim/cam/left /cameraListener
+    colourPort.open("/filters/colour");
+    edgePort.open("/filters/edge");
+    facePort.open("/faces");
 }
