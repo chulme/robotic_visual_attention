@@ -1,16 +1,12 @@
-#include <yarp/os/all.h>
-#include <yarp/sig/all.h>
-#include <yarp/dev/all.h>
 
-#include <opencv2/opencv.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/core/core.hpp>
-#include <opencv2/objdetect/objdetect.hpp>
+#include <yarp/dev/PolyDriver.h>
+#include <yarp/dev/ImplementPositionControl.h>
+#include <yarp/dev/ImplementVelocityControl.h>
+#include <yarp/dev/ImplementControlMode.h>
+#include <yarp/dev/ImplementEncoders.h>
+#include <yarp/sig/Vector.h>
 
 #include <vector>
-#include <string>
-#include <utils.h>
 #include <control_iCubSim_head.h>
 const double scale = 1.0;
 
