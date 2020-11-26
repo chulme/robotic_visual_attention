@@ -61,11 +61,12 @@ static cv::Mat drawRectangeOnFaces(const std::vector<cv::Rect> faces, const cv::
     return newImage;
 }
 
-cv::Mat circle_detection(const cv::Mat &img)
+std::vector<cv::Point> circle_detection(const cv::Mat &img, yarp::sig::ImageOf<yarp::sig::PixelRgb> &out )
 {
 
     cv::Mat src = img.clone(); //OpenCV can override const, so clone to be safe and ensure no reference between old and new.
     Mat gray;
+    std::vector<cv::Point> circleCoords;
     cvtColor(src, gray, COLOR_RGB2GRAY);
     medianBlur(gray, gray, 5);
     vector<Vec3f> circles;
@@ -73,11 +74,14 @@ cv::Mat circle_detection(const cv::Mat &img)
                  gray.rows / 16, // change this value to detect circles with different distances to each other
                  100, 30, 5, 30  // change the last two parameters
                                  // (min_radius & max_radius) to detect larger circles
+
     );
     for (size_t i = 0; i < circles.size(); i++)
     {
+        
         Vec3i c = circles[i];
         Point center = Point(c[0], c[1]);
+        circleCoords.push_back(center);
         // circle center
         circle(src, center, 1, Scalar(0, 100, 100), 3, LINE_AA);
         // circle outline
@@ -86,7 +90,7 @@ cv::Mat circle_detection(const cv::Mat &img)
     }
 
     out = yarp::cv::fromCvMat<yarp::sig::PixelRgb>(src);
-    return src;
+    return circleCoords;
 }
 // static std::vector<cv::Point> getFaceCoords(const std::vector<cv::Rect> faces)
 // {

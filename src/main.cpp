@@ -54,11 +54,12 @@ int main()
         con->setControlMode(i, VOCAB_CM_VELOCITY);
     vel->velocityMove(setpoints.data());
 
-    BufferedPort<ImageOf<PixelRgb>> imagePort, colourPort, edgePort, facePort;
+    BufferedPort<ImageOf<PixelRgb>> imagePort, colourPort, edgePort, facePort, circlePort;
     imagePort.open("/cameraListener"); //yarp connect /icubSim/cam/left /cameraListener
     colourPort.open("/filters/colour");
     edgePort.open("/filters/edge");
     facePort.open("/faces");
+    circlePort.open("/circles");
 
     while (1)
     {
@@ -70,18 +71,23 @@ int main()
         ImageOf<PixelRgb> &clr = colourPort.prepare();
         ImageOf<PixelRgb> &edge = edgePort.prepare();
         ImageOf<PixelRgb> &faces = facePort.prepare();
+        ImageOf<PixelRgb> &circle = circlePort.prepare();
 
         //Apply visual modules
         cv::Mat colour = colour_threshold(opencvImage, clr);
         cv::Mat canny = canny_threshold(opencvImage, edge);
         std::vector<cv::Point> faceCoords = facial_detection(opencvImage, faces);
-        circle_detection(opencvImage);
+        std::vector<cv::Point> circleCoords = circle_detection(opencvImage, circle);
+        for(cv::Point circleCoord:circleCoords){
+            yInfo()<<circleCoord.x<<" "<<circleCoord.y;
+            }
         //Move head
         toward_head(faceCoords, jnts, setpoints, vel);
         //Write to ports, so images can be viewed by yarpview
         colourPort.write();
         edgePort.write();
         facePort.write();
+        circlePort.write();
     }
 
     return 0;
