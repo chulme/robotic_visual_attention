@@ -61,6 +61,7 @@ static cv::Mat drawRectangeOnFaces(const std::vector<cv::Rect> faces, const cv::
     return newImage;
 }
 
+//CIRCLE DETECTION CODE adapted from the open CV implementation of the Hough Circle Transform
 std::vector<cv::Point> circle_detection(const cv::Mat &img, yarp::sig::ImageOf<yarp::sig::PixelRgb> &out )
 {
 
@@ -70,9 +71,10 @@ std::vector<cv::Point> circle_detection(const cv::Mat &img, yarp::sig::ImageOf<y
     cvtColor(src, gray, COLOR_RGB2GRAY);
     medianBlur(gray, gray, 5);
     vector<Vec3f> circles;
+
     HoughCircles(gray, circles, HOUGH_GRADIENT, 1,
                  gray.rows / 16, // change this value to detect circles with different distances to each other
-                 100, 30, 5, 30  // change the last two parameters
+                 100, 30, 1, 100  // change the last two parameters
                                  // (min_radius & max_radius) to detect larger circles
 
     );
