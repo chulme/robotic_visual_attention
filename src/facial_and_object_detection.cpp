@@ -66,16 +66,20 @@ static cv::Mat drawRectangeOnFaces(const std::vector<cv::Rect> faces, const cv::
 std::vector<cv::Point> circle_detection(const cv::Mat &img, yarp::sig::ImageOf<yarp::sig::PixelRgb> &out )
 {
 
-    cv::Mat src = img.clone(); //OpenCV can override const, so clone to be safe and ensure no reference between old and new.
+    cv::Mat src = img.clone(); 
     Mat gray;
+    //vector to store circle coorodinates
     std::vector<cv::Point> circleCoords;
+    //apply grey filter to image
     cvtColor(src, gray, COLOR_RGB2GRAY);
+    //median blur the image to reduce noise
     medianBlur(gray, gray, 5);
     vector<Vec3f> circles;
 
+    //apply hough circles transform to image
     HoughCircles(gray, circles, HOUGH_GRADIENT, 1,
-                 gray.rows / 16, // change this value to detect circles with different distances to each other
-                 100, 30, 1, 100  // change the last two parameters
+                 gray.rows / 16, 
+                 100, 30, 1, 100  
                                  // (min_radius & max_radius) to detect larger circles
 
     );
@@ -87,11 +91,12 @@ std::vector<cv::Point> circle_detection(const cv::Mat &img, yarp::sig::ImageOf<y
         circleCoords.push_back(center);
         // circle center
         circle(src, center, 1, Scalar(0, 100, 100), 3, LINE_AA);
+        
         // circle outline
         int radius = c[2];
         circle(src, center, radius, Scalar(255, 0, 255), 3, LINE_AA);
     }
-
+    //return detected circle
     out = yarp::cv::fromCvMat<yarp::sig::PixelRgb>(src);
     return circleCoords;
 }
