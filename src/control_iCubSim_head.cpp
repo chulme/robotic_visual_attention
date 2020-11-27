@@ -58,17 +58,16 @@ void wave(Vector setpoints, IPositionControl *pos)
     setpoints[14] = 11;
     setpoints[15] = 11;
     pos->positionMove(setpoints.data());
-    yarp::os::Time::delay(3.5);
+    yarp::os::Time::delay(0.5);
 
     setpoints[3] = 82;
 
     pos->positionMove(setpoints.data());
-    yarp::os::Time::delay(1.5);
+    yarp::os::Time::delay(0.5);
 
     setpoints[3] = 28;
     pos->positionMove(setpoints.data());
-
-    yarp::os::Time::delay(1.5);
+    yarp::os::Time::delay(0.5);
 
     setpoints[0] = -25;
     setpoints[1] = 19;
