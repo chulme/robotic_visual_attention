@@ -30,6 +30,29 @@ using namespace yarp::sig;
 using namespace yarp::os;
 using namespace std;
 using namespace aruco;
+//***********************In main***********************
+/*
+    BufferedPort<ImageOf<PixelRgb>> imagePort,arucoPort;                                  //yarp connect /icubSim/cam/left /cameraListener 
+    arucoPort.open("/marker");	
+    while (!buttonPressed)
+    {
+	ImageOf<PixelRgb> &markerImg = arucoPort.prepare();
+
+        ImageOf<PixelRgb> yarpImage = read_port_until_image_received(imagePort);
+	//cv::Mat opencvImage = read_image("marker.png");        
+	cv::Mat opencvImage = convert_yarp_to_opencv_image(yarpImage);
+
+	cv::Mat arucoImg = arucoDetection(opencvImage, markerImg);
+
+	arucoPort.write();
+        if (cv::waitKey(1) >= 0)
+        {
+            buttonPressed = true;
+        }
+    }
+*/
+//*****************************************************
+
 
 //from x2go help email alternitive to yarp::cv::fromCvMat<PixelRgb>
 yarp::sig::ImageOf<yarp::sig::PixelRgb> fromCvMat(::cv::Mat& cvImage)
@@ -55,10 +78,11 @@ yarp::sig::ImageOf<yarp::sig::PixelRgb> fromCvMat(::cv::Mat& cvImage)
 
 cv::Mat arucoDetection(const cv::Mat &image, ImageOf<PixelRgb> &output){
 
-
+	//codes references the UCO's aruco library documnentation
 	aruco::MarkerDetector detector;
 	//read in
 	cv::Mat markerImg = image;
+	//set detector to fast video mode using the aruco purpose build markers
 	detector.setDetectionMode(aruco::DM_VIDEO_FAST);
 	detector.setDictionary("ARUCO_MIP_36h12");
 	
