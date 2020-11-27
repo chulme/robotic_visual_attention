@@ -14,7 +14,7 @@ using namespace yarp::os;
 using namespace yarp::sig;
 using namespace yarp::dev;
 
-void toward_head(const std::vector<cv::Point> focus, int jnts, Vector setpoints, IVelocityControl *vel)
+void toward_head(const std::vector<cv::Point> focus, int jnts, Vector setpoints, IPositionControl *pos)
 {
 
     for (cv::Point target : focus)
@@ -34,48 +34,47 @@ void toward_head(const std::vector<cv::Point> focus, int jnts, Vector setpoints,
         setpoints[3] = vy;
         setpoints[4] = vx;
 
-        vel->velocityMove(setpoints.data());
+        pos->positionMove(setpoints.data());
         yarp::os::Time::delay(1);
     }
 }
 
-void wave(Vector setpoints, IPositionControl *pos) 
+void wave(Vector setpoints, IPositionControl *pos)
 {
-	setpoints[0] = -69;
-	setpoints[1] = 61;
-	setpoints[2] = 0;
-	setpoints[3] = 49;
-	setpoints[4] = 0;
-	setpoints[5] = 0;
-	setpoints[6] = 0;
-	setpoints[7] = 59;
-	setpoints[8] = 20;
-	setpoints[9] = 20;
-	setpoints[10] = 20;
-	setpoints[11] = 10;
-	setpoints[12] = 11;
-	setpoints[13] = 10;
-	setpoints[14] = 11;
-	setpoints[15] = 11;
-	pos->positionMove(setpoints.data());
-	yarp::os::Time::delay(3.5);
+    setpoints[0] = -69;
+    setpoints[1] = 61;
+    setpoints[2] = 0;
+    setpoints[3] = 49;
+    setpoints[4] = 0;
+    setpoints[5] = 0;
+    setpoints[6] = 0;
+    setpoints[7] = 59;
+    setpoints[8] = 20;
+    setpoints[9] = 20;
+    setpoints[10] = 20;
+    setpoints[11] = 10;
+    setpoints[12] = 11;
+    setpoints[13] = 10;
+    setpoints[14] = 11;
+    setpoints[15] = 11;
+    pos->positionMove(setpoints.data());
+    yarp::os::Time::delay(3.5);
 
-	setpoints[3] = 82;
+    setpoints[3] = 82;
 
-	pos->positionMove(setpoints.data());
-	yarp::os::Time::delay(1.5);
+    pos->positionMove(setpoints.data());
+    yarp::os::Time::delay(1.5);
 
-	setpoints[3] = 28;
-	pos->positionMove(setpoints.data());
+    setpoints[3] = 28;
+    pos->positionMove(setpoints.data());
 
-	yarp::os::Time::delay(1.5);
+    yarp::os::Time::delay(1.5);
 
-	setpoints[0] = -25;
-	setpoints[1] = 19;
-	setpoints[2] = 0;
-	setpoints[3] = 50;
-	pos->positionMove(setpoints.data());
+    setpoints[0] = -25;
+    setpoints[1] = 19;
+    setpoints[2] = 0;
+    setpoints[3] = 50;
+    pos->positionMove(setpoints.data());
 
-	yarp::os::Time::delay(0.01);
-
+    yarp::os::Time::delay(0.01);
 }

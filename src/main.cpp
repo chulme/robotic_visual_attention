@@ -22,8 +22,7 @@ using namespace yarp::os;
 using namespace yarp::dev;
 
 Network network;
-
-BufferedPort<ImageOf<PixelRgb>> imagePort, colourPort, edgePort, facePort;
+BufferedPort<ImageOf<PixelRgb>> imagePort, colourPort, edgePort, facePort, circlePort;
 Property options;
 PolyDriver robotHead;
 IPositionControl *pos;
@@ -32,16 +31,17 @@ IEncoders *enc;
 IControlMode *con;
 int jnts = 0;
 Vector setpoints;
+std::vector<cv::Point> defaultCoord;
 
 void init_head_joints();
-void init_right_arm_joints();
 void init_ports();
+void tracking_state_machine(std::vector<cv::Point> faceCoords);
 
 int main()
 {
     init_head_joints();
     init_ports();
-    init_right_arm_joints();
+    defaultCoord.push_back(cv::Point(160, 120));
 
     while (1)
     {
@@ -53,27 +53,39 @@ int main()
         ImageOf<PixelRgb> &clr = colourPort.prepare();
         ImageOf<PixelRgb> &edge = edgePort.prepare();
         ImageOf<PixelRgb> &faces = facePort.prepare();
+        ImageOf<PixelRgb> &circles = circlePort.prepare();
 
         //Apply visual modules
         cv::Mat colour = colour_threshold(opencvImage, clr);
         cv::Mat canny = canny_threshold(opencvImage, edge);
         std::vector<cv::Point> faceCoords = facial_detection(opencvImage, faces);
+        std::vector<cv::Point> circleCoords = circle_detection(opencvImage, circles);
 
-        if (faceCoords.size() > 0)
-        {
-            wave(setpoints, pos);
-        }
-
-        //Move head
-        toward_head(faceCoords, jnts, setpoints, vel);
+        tracking_state_machine(faceCoords);
 
         //Write to ports, so images can be viewed by yarpview
         colourPort.write();
         edgePort.write();
         facePort.write();
+        circlePort.write();
     }
 
     return 0;
+}
+
+void tracking_state_machine(std::vector<cv::Point> faceCoords)
+{
+    if (faceCoords.size() > 0)
+    {
+        yInfo() << "Face detected, moving to track and waving.";
+        wave(setpoints, pos);
+        toward_head(faceCoords, jnts, setpoints, pos);
+    }
+    else
+    {
+        toward_head(defaultCoord, jnts, setpoints, pos);
+        yInfo() << "Nothing detected, moving to rest position.";
+    }
 }
 
 void init_head_joints()
@@ -102,7 +114,7 @@ void init_head_joints()
     setpoints.resize(jnts);
     for (int i = 0; i <= jnts; i++)
         con->setControlMode(i, VOCAB_CM_VELOCITY);
-    vel->velocityMove(setpoints.data());
+    pos->positionMove(setpoints.data());
 }
 
 void init_right_arm_joints()
@@ -144,4 +156,5 @@ void init_ports()
     colourPort.open("/filters/colour");
     edgePort.open("/filters/edge");
     facePort.open("/faces");
+    circlePort.open("/circles");
 }
