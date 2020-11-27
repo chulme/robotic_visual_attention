@@ -14,7 +14,7 @@ using namespace yarp::os;
 using namespace yarp::sig;
 using namespace yarp::dev;
 
-void toward_head(const std::vector<cv::Point> focus, int jnts, Vector setpoints, IVelocityControl *vel)
+void toward_head(const std::vector<cv::Point> focus, int jnts, Vector setpoints, IPositionControl *pos)
 {
 
     for (cv::Point target : focus)
@@ -34,7 +34,7 @@ void toward_head(const std::vector<cv::Point> focus, int jnts, Vector setpoints,
         setpoints[3] = vy;
         setpoints[4] = vx;
 
-        vel->velocityMove(setpoints.data());
+        vel->positionMove(setpoints.data());
         yarp::os::Time::delay(1);
     }
 }

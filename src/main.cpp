@@ -22,7 +22,6 @@ using namespace yarp::os;
 using namespace yarp::dev;
 
 Network network;
-
 BufferedPort<ImageOf<PixelRgb>> imagePort, colourPort, edgePort, facePort;
 Property options;
 PolyDriver robotHead;
@@ -32,6 +31,7 @@ IEncoders *enc;
 IControlMode *con;
 int jnts = 0;
 Vector setpoints;
+std::vector<cv::Point> defaultCoord;
 
 void init_head_joints();
 void init_ports();
@@ -40,6 +40,7 @@ int main()
 {
     init_head_joints();
     init_ports();
+    defaultCoord.push_back(cv::Point(160, 120));
 
     while (1)
     {
@@ -57,8 +58,7 @@ int main()
         cv::Mat canny = canny_threshold(opencvImage, edge);
         std::vector<cv::Point> faceCoords = facial_detection(opencvImage, faces);
 
-        //Move head
-        toward_head(faceCoords, jnts, setpoints, vel);
+        tracking_state_machine(faceCoords);
 
         //Write to ports, so images can be viewed by yarpview
         colourPort.write();
@@ -67,6 +67,20 @@ int main()
     }
 
     return 0;
+}
+
+void tracking_state_machine(std::vector<cv::Point> faceCoords)
+{
+    if (faceCoords.size() > 0)
+    {
+        yInfo() << "Face detected, moving to track.";
+        toward_head(faceCoords, jnts, setpoints, pos);
+    }
+    else
+    {
+        toward_head(defaultCoord, jnts, setpoints, pos);
+        yInfo() << "Nothing detected, moving to rest position.";
+    }
 }
 
 void init_head_joints()
@@ -94,7 +108,8 @@ void init_head_joints()
     pos->getAxes(&jnts);
     setpoints.resize(jnts);
     for (int i = 0; i <= jnts; i++)
-        con->setControlMode(i, VOCAB_CM_VELOCITY);
+        con->setControlMode(i, VOCAB_CM_POSITION);
+    pos->positionMove(setpoints.data());
     vel->velocityMove(setpoints.data());
 }
 
