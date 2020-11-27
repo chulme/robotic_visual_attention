@@ -34,7 +34,7 @@ void toward_head(const std::vector<cv::Point> focus, int jnts, Vector setpoints,
         setpoints[3] = vy;
         setpoints[4] = vx;
 
-        vel->positionMove(setpoints.data());
+        pos->positionMove(setpoints.data());
         yarp::os::Time::delay(1);
     }
 }

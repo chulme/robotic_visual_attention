@@ -35,6 +35,7 @@ std::vector<cv::Point> defaultCoord;
 
 void init_head_joints();
 void init_ports();
+void tracking_state_machine(std::vector<cv::Point> faceCoords);
 
 int main()
 {
