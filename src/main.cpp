@@ -22,7 +22,8 @@ using namespace yarp::os;
 using namespace yarp::dev;
 
 Network network;
-BufferedPort<ImageOf<PixelRgb>> imagePort, colourPort, edgePort, facePort, circlePort;
+
+BufferedPort<ImageOf<PixelRgb>> imagePort, colourPort, edgePort, facePort;
 Property options;
 PolyDriver robotHead;
 IPositionControl *pos;
@@ -31,17 +32,16 @@ IEncoders *enc;
 IControlMode *con;
 int jnts = 0;
 Vector setpoints;
-std::vector<cv::Point> defaultCoord;
 
 void init_head_joints();
+void init_right_arm_joints();
 void init_ports();
-void tracking_state_machine(std::vector<cv::Point> faceCoords);
 
 int main()
 {
     init_head_joints();
     init_ports();
-    defaultCoord.push_back(cv::Point(160, 120));
+    init_right_arm_joints();
 
     while (1)
     {
@@ -53,38 +53,26 @@ int main()
         ImageOf<PixelRgb> &clr = colourPort.prepare();
         ImageOf<PixelRgb> &edge = edgePort.prepare();
         ImageOf<PixelRgb> &faces = facePort.prepare();
-        ImageOf<PixelRgb> &circles = circlePort.prepare();
 
         //Apply visual modules
         cv::Mat colour = colour_threshold(opencvImage, clr);
         cv::Mat canny = canny_threshold(opencvImage, edge);
         std::vector<cv::Point> faceCoords = facial_detection(opencvImage, faces);
-        std::vector<cv::Point> circleCoords = circle_detection(opencvImage, circles);
 
-        tracking_state_machine(faceCoords);
+        if (faceCoords != null) {
+            wave(setpoints, pos);
+        }
+
+        //Move head
+        toward_head(faceCoords, jnts, setpoints, vel);
 
         //Write to ports, so images can be viewed by yarpview
         colourPort.write();
         edgePort.write();
         facePort.write();
-        circlePort.write();
     }
 
     return 0;
-}
-
-void tracking_state_machine(std::vector<cv::Point> faceCoords)
-{
-    if (faceCoords.size() > 0)
-    {
-        yInfo() << "Face detected, moving to track.";
-        toward_head(faceCoords, jnts, setpoints, pos);
-    }
-    else
-    {
-        toward_head(defaultCoord, jnts, setpoints, pos);
-        yInfo() << "Nothing detected, moving to rest position.";
-    }
 }
 
 void init_head_joints()
@@ -112,9 +100,40 @@ void init_head_joints()
     pos->getAxes(&jnts);
     setpoints.resize(jnts);
     for (int i = 0; i <= jnts; i++)
-        con->setControlMode(i, VOCAB_CM_POSITION);
-    pos->positionMove(setpoints.data());
+        con->setControlMode(i, VOCAB_CM_VELOCITY);
     vel->velocityMove(setpoints.data());
+}
+
+void init_right_arm_joints() {
+    Property armOptions;
+    armOptions.put("device", "remote_controlboard");
+    armOptions.put("local", "/tutorial/motor/client");
+    armOptions.put("remote", "/icubSim/right_arm");
+    PolyDriver robotRightArm(armOptions);
+    if (!robotRightArm.isValid()) {
+        printf("Cannot connect to robot arm\n");
+        return 1;
+    }
+    IPositionControl* pos;
+    IVelocityControl* vel;
+    IEncoders* enc;
+    IControlMode* con;
+    robotRightArm.view(pos);
+    robotRightArm.view(vel);
+    robotRightArm.view(enc);
+    robotRightArm.view(con);
+    if (pos == NULL || vel == NULL || enc == NULL || con == NULL) {
+        printf("Cannot get interface to robot arm\n");
+        robotRightArm.close();
+        return 1;
+    }
+    int armJnts = 0;
+    pos->getAxes(&armJnts);
+    Vector setArmPoints;
+    setArmPoints.resize(armJnts);
+    for (int i = 0; i <= armJnts; i++)
+        con->setControlMode(i, VOCAB_CM_POSITION);
+      pos->positionMove(setArmPoints.data());
 }
 
 void init_ports()
@@ -123,5 +142,4 @@ void init_ports()
     colourPort.open("/filters/colour");
     edgePort.open("/filters/edge");
     facePort.open("/faces");
-    circlePort.open("/circles");
 }

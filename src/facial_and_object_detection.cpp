@@ -8,20 +8,13 @@
 #include <yarp/cv/Cv.h>
 #include <vector>
 #include <string>
-#include <facial_and_object_detection.h>
-
 #include <utils.h>
-
-using namespace cv;
-using namespace std;
-
+#include <facial_and_object_detection.h>
 const double scale = 1.0;
-const int HOUGH_GRADIENT = 3;
-const int LINE_AA = 16;
 
-std::vector<cv::Point> facial_detection(const cv::Mat &in, yarp::sig::ImageOf<yarp::sig::PixelRgb> &out)
+std::vector<cv::Point> facial_detection(const cv::Mat &image, yarp::sig::ImageOf<yarp::sig::PixelRgb> &out)
 {
-    cv::Mat image = in.clone(); //OpenCV can override const, so clone to be safe and ensure no reference between old and new.
+
     cv::CascadeClassifier faceCascade;
     loadCascade(faceCascade);
     std::vector<cv::Rect> faces = detectFaces(image, faceCascade);
@@ -58,40 +51,9 @@ static cv::Mat drawRectangeOnFaces(const std::vector<cv::Rect> faces, const cv::
                   cv::Point(cvRound((area.x + area.width - 1) * scale), cvRound((area.y + area.height - 1) * scale)),
                   colour);
     }
-    return newImage;
+    return image;
 }
 
-std::vector<cv::Point> circle_detection(const cv::Mat &img, yarp::sig::ImageOf<yarp::sig::PixelRgb> &out)
-{
-
-    cv::Mat src = img.clone(); //OpenCV can override const, so clone to be safe and ensure no reference between old and new.
-    Mat gray;
-    std::vector<cv::Point> circleCoords;
-    cvtColor(src, gray, COLOR_RGB2GRAY);
-    medianBlur(gray, gray, 5);
-    vector<Vec3f> circles;
-    HoughCircles(gray, circles, HOUGH_GRADIENT, 1,
-                 gray.rows / 16, // change this value to detect circles with different distances to each other
-                 100, 30, 5, 30  // change the last two parameters
-                                 // (min_radius & max_radius) to detect larger circles
-
-    );
-    for (size_t i = 0; i < circles.size(); i++)
-    {
-
-        Vec3i c = circles[i];
-        Point center = Point(c[0], c[1]);
-        circleCoords.push_back(center);
-        // circle center
-        circle(src, center, 1, Scalar(0, 100, 100), 3, LINE_AA);
-        // circle outline
-        int radius = c[2];
-        circle(src, center, radius, Scalar(255, 0, 255), 3, LINE_AA);
-    }
-
-    out = yarp::cv::fromCvMat<yarp::sig::PixelRgb>(src);
-    return circleCoords;
-}
 // static std::vector<cv::Point> getFaceCoords(const std::vector<cv::Rect> faces)
 // {
 //     std::vector<cv::Point> faceCoords;
