@@ -50,7 +50,7 @@ std::vector<cv::Point> defaultCoord;
 void init_head_joints();
 void init_right_arm_joints();
 void init_ports();
-void tracking_state_machine(std::vector<cv::Point> faceCoords);
+void tracking_state_machine(std::vector<cv::Point> faceCoords, std::vector<cv::Point> circleCoords);
 
 int main()
 {
@@ -77,7 +77,7 @@ int main()
         std::vector<cv::Point> faceCoords = facial_detection(opencvImage, faces);
         std::vector<cv::Point> circleCoords = circle_detection(opencvImage, circles);
 
-        tracking_state_machine(faceCoords);
+        tracking_state_machine(faceCoords, circleCoords);
 
         //Write to ports, so images can be viewed by yarpview
         colourPort.write();
@@ -89,13 +89,18 @@ int main()
     return 0;
 }
 
-void tracking_state_machine(std::vector<cv::Point> faceCoords)
+void tracking_state_machine(std::vector<cv::Point> faceCoords, std::vector<cv::Point> circleCoords)
 {
     if (faceCoords.size() > 0)
     {
         yInfo() << "Face detected, moving to" << faceCoords.front().x << "," << faceCoords.front().y << "and waving.";
         wave(setArmPoints, aPos);
         toward_head(faceCoords, jnts, setpoints, pos);
+    }
+    else if (circleCoords.size() > 0)
+    {
+        yInfo() << "Circle detected, moving to" << circleCoords.front().x << "," << circleCoords.front().y;
+        toward_head(circleCoords, jnts, setpoints, pos);
     }
     else
     {
