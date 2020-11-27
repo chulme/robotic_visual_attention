@@ -7,4 +7,5 @@ std::vector<cv::Point> facial_detection(const cv::Mat &image, yarp::sig::ImageOf
 static void loadCascade(cv::CascadeClassifier &cascade);
 static std::vector<cv::Rect> detectFaces(const cv::Mat &image, cv::CascadeClassifier &faceCascade);
 static cv::Mat drawRectangeOnFaces(const std::vector<cv::Rect> faces, const cv::Mat &image);
+std::vector<cv::Point> circle_detection(const cv::Mat &src, yarp::sig::ImageOf<yarp::sig::PixelRgb> &out);
 static std::vector<cv::Point> getFaceCoords(const std::vector<cv::Rect> faces);

@@ -22,7 +22,7 @@ using namespace yarp::os;
 using namespace yarp::dev;
 
 Network network;
-BufferedPort<ImageOf<PixelRgb>> imagePort, colourPort, edgePort, facePort;
+BufferedPort<ImageOf<PixelRgb>> imagePort, colourPort, edgePort, facePort, circlePort;
 Property options;
 PolyDriver robotHead;
 IPositionControl *pos;
@@ -52,11 +52,13 @@ int main()
         ImageOf<PixelRgb> &clr = colourPort.prepare();
         ImageOf<PixelRgb> &edge = edgePort.prepare();
         ImageOf<PixelRgb> &faces = facePort.prepare();
+        ImageOf<PixelRgb> &circles = circlePort.prepare();
 
         //Apply visual modules
         cv::Mat colour = colour_threshold(opencvImage, clr);
         cv::Mat canny = canny_threshold(opencvImage, edge);
         std::vector<cv::Point> faceCoords = facial_detection(opencvImage, faces);
+        std::vector<cv::Point> circleCoords = circle_detection(opencvImage, circles);
 
         tracking_state_machine(faceCoords);
 
@@ -64,6 +66,7 @@ int main()
         colourPort.write();
         edgePort.write();
         facePort.write();
+        circlePort.write();
     }
 
     return 0;
@@ -119,4 +122,5 @@ void init_ports()
     colourPort.open("/filters/colour");
     edgePort.open("/filters/edge");
     facePort.open("/faces");
+    circlePort.open("/circles");
 }
