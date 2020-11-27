@@ -59,7 +59,8 @@ int main()
         cv::Mat canny = canny_threshold(opencvImage, edge);
         std::vector<cv::Point> faceCoords = facial_detection(opencvImage, faces);
 
-        if (faceCoords != null) {
+        if (faceCoords.size() > 0)
+        {
             wave(setpoints, pos);
         }
 
@@ -104,28 +105,29 @@ void init_head_joints()
     vel->velocityMove(setpoints.data());
 }
 
-void init_right_arm_joints() {
+void init_right_arm_joints()
+{
     Property armOptions;
     armOptions.put("device", "remote_controlboard");
     armOptions.put("local", "/tutorial/motor/client");
     armOptions.put("remote", "/icubSim/right_arm");
     PolyDriver robotRightArm(armOptions);
-    if (!robotRightArm.isValid()) {
+    if (!robotRightArm.isValid())
+    {
         printf("Cannot connect to robot arm\n");
-        return 1;
     }
-    IPositionControl* pos;
-    IVelocityControl* vel;
-    IEncoders* enc;
-    IControlMode* con;
+    IPositionControl *pos;
+    IVelocityControl *vel;
+    IEncoders *enc;
+    IControlMode *con;
     robotRightArm.view(pos);
     robotRightArm.view(vel);
     robotRightArm.view(enc);
     robotRightArm.view(con);
-    if (pos == NULL || vel == NULL || enc == NULL || con == NULL) {
+    if (pos == NULL || vel == NULL || enc == NULL || con == NULL)
+    {
         printf("Cannot get interface to robot arm\n");
         robotRightArm.close();
-        return 1;
     }
     int armJnts = 0;
     pos->getAxes(&armJnts);
@@ -133,7 +135,7 @@ void init_right_arm_joints() {
     setArmPoints.resize(armJnts);
     for (int i = 0; i <= armJnts; i++)
         con->setControlMode(i, VOCAB_CM_POSITION);
-      pos->positionMove(setArmPoints.data());
+    pos->positionMove(setArmPoints.data());
 }
 
 void init_ports()
