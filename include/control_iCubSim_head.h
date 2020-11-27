@@ -7,3 +7,4 @@
 
 void toward_head(const std::vector<cv::Point> focus, int jnts, yarp::sig::Vector setpoints, yarp::dev::IPositionControl *pos);
 void wave(yarp::sig::Vector setpoints, yarp::dev::IPositionControl *pos);
+void salute(yarp::sig::Vector setpoints, yarp::dev::IPositionControl *pos);

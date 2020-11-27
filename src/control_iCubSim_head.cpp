@@ -77,3 +77,39 @@ void wave(Vector setpoints, IPositionControl *pos)
 
     yarp::os::Time::delay(0.01);
 }
+
+void salute(Vector setpoints, IPositionControl* pos)
+{
+    setpoints[0] = -94;
+    setpoints[1] = 56;
+    setpoints[2] = 60;
+    setpoints[3] = 103;
+    setpoints[4] = 0;
+    setpoints[5] = 0;
+    setpoints[6] = 0;
+    setpoints[7] = 59;
+    setpoints[8] = 20;
+    setpoints[9] = 20;
+    setpoints[10] = 20;
+    setpoints[11] = 10;
+    setpoints[12] = 11;
+    setpoints[13] = 10;
+    setpoints[14] = 11;
+    setpoints[15] = 11;
+    pos->positionMove(setpoints.data());
+    yarp::os::Time::delay(2.0);
+
+    setpoints[3] = 16;
+
+    pos->positionMove(setpoints.data());
+    
+    yarp::os::Time::delay(2.0);
+
+    setpoints[0] = -25;
+    setpoints[1] = 19;
+    setpoints[2] = 0;
+    setpoints[3] = 50;
+    pos->positionMove(setpoints.data());
+
+    yarp::os::Time::delay(0.01);
+}
