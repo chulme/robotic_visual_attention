@@ -15,6 +15,7 @@
 using namespace cv;
 using namespace std;
 
+//PARAMETERS_
 const double scale = 1.0;
 const int HOUGH_GRADIENT = 3;
 const int LINE_AA = 16;
