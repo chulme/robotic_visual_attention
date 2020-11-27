@@ -92,15 +92,6 @@ std::vector<cv::Point> circle_detection(const cv::Mat &img, yarp::sig::ImageOf<y
     out = yarp::cv::fromCvMat<yarp::sig::PixelRgb>(src);
     return circleCoords;
 }
-// static std::vector<cv::Point> getFaceCoords(const std::vector<cv::Rect> faces)
-// {
-//     std::vector<cv::Point> faceCoords;
-//     for (cv::Rect face : faces)
-//     {
-//         faceCoords.push_back({face.x, face.y});
-//     }
-//     return faceCoords;
-// }
 
 static std::vector<cv::Point> getFaceCoords(const std::vector<cv::Rect> faces)
 {
